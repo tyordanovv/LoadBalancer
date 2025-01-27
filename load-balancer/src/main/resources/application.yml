@@ -1,0 +1,14 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: load-balancer
+logging:
+  level:
+    root: INFO
+load-balancer:
+  algorithm: least-connections
+  max-connections: 100
+  health-check:
+    interval: 30s
+    timeout: 5s
