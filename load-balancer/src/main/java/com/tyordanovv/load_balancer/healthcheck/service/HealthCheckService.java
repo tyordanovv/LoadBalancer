@@ -25,7 +25,7 @@ public class HealthCheckService {
         this.restTemplate = restTemplate;
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 30000)
     public void performHealthChecks() {
         for (ServerStats server : serverPool.getAllServers()) {
             String serverEndpoint = String.format(HealthCheckUtils.HEALTH_CHECK_URL, server.getUrl());

@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/health")
+@RequestMapping("/health")
 @Slf4j
 public class LoadBalancerConnectorController {
     private final LoadBalancerConnectorService loadBalancerService;
