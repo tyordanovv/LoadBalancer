@@ -1,6 +1,7 @@
 package com.tyordanovv.backend_server.connector.service;
 
 import com.tyordanovv.backend_server.config.BackendServerConfig;
+import com.tyordanovv.backend_server.connector.utils.LoadBalancerConnectorUtils;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
@@ -32,21 +33,21 @@ public class LoadBalancerConnector {
     @EventListener
     public void onApplicationEvent(final ServletWebServerInitializedEvent event) {
         int serverPort = event.getWebServer().getPort();
-        log.info("Program port is set to {}", serverPort);
+        log.info(LoadBalancerConnectorUtils.PORT_SET, serverPort);
         registerWithLoadBalancer(serverPort);
     }
 
     private void registerWithLoadBalancer(int serverPort) {
         executorService.scheduleAtFixedRate(() -> {
-            String registerEndpoint = serverConfig.getLoadBalancerUrl() + "/api/register?port=" + serverPort;
+            String registerEndpoint = String.format(
+                    LoadBalancerConnectorUtils.LB_REGISTER_URL,
+                    serverConfig.getLoadBalancerUrl(), serverPort);
             try {
                 restTemplate.postForEntity(registerEndpoint, null, String.class);
-                log.info("Successfully registered with Load Balancer at {} with port {}",
-                        registerEndpoint, serverPort);
+                log.info(LoadBalancerConnectorUtils.LB_SUCCESSFUL_REGISTER, registerEndpoint, serverPort);
                 executorService.shutdown();
             } catch (Exception e) {
-                log.warn("Failed to register with Load Balancer at {} with port {}. Retrying in 10 seconds...",
-                        registerEndpoint, serverPort, e);
+                log.warn(LoadBalancerConnectorUtils.LB_UNSUCCESSFUL_REGISTER, registerEndpoint, serverPort, e);
             }
         }, 0, 10, TimeUnit.SECONDS);
     }

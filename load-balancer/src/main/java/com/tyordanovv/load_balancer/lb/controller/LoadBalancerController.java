@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping()
 @Slf4j
 public class LoadBalancerController {
     private final LoadBalancerService loadBalancerService;
@@ -25,7 +25,7 @@ public class LoadBalancerController {
         this.restTemplate = restTemplate;
     }
 
-    @PostMapping("/register")
+    @PostMapping("/health/registerg")
     public ResponseEntity<String> registerServer(HttpServletRequest request, @RequestParam int port) {
         String serverIp = extractServerIP(request);
         String serverAddress = String.format("http://%s:%d", serverIp, port);
