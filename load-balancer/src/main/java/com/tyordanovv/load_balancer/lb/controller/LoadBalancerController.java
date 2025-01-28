@@ -1,6 +1,6 @@
-package com.tyordanovv.load_balancer.controller;
+package com.tyordanovv.load_balancer.lb.controller;
 
-import com.tyordanovv.load_balancer.service.LoadBalancerService;
+import com.tyordanovv.load_balancer.lb.service.LoadBalancerService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

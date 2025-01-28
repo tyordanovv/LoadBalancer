@@ -1,10 +1,10 @@
-package com.tyordanovv.load_balancer.model;
+package com.tyordanovv.load_balancer.lb.model;
 
 import lombok.Data;
 
 @Data
 public class ServerStats {
-    private final String url;
+    private String url;
     private double workload;
     private boolean healthy;
 

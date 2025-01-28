@@ -1,32 +1,22 @@
-package com.tyordanovv.backend_server;
+package com.tyordanovv.backend_server.config;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.context.WebServerApplicationContext;
-import org.springframework.boot.web.server.WebServer;
+import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Getter
 @Component
+@Slf4j
 public class BackendServerConfig {
     @Value("${load-balancer.url}")
     private String loadBalancerUrl;
-
-    private int serverPort;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @PostConstruct
-    private void init() {
-        WebServer webServer = ((WebServerApplicationContext) applicationContext).getWebServer();
-        serverPort = webServer.getPort();
-    }
 
     @Bean
     public RestTemplate restTemplate() {
