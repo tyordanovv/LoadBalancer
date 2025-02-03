@@ -10,65 +10,63 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Load balancer service responsible for:
+ * - Selecting the healthiest server with the least workload.
+ * - Forwarding HTTP requests asynchronously.
+ */
 @Component
 public class LoadBalancerService {
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerService.class);
-    private final ServerPool serverPool;
+    private final ServerPoolManager serverPoolManager;
     private final RestTemplate restTemplate;
     private final ExecutorService virtualThreadExecutor;
 
     public LoadBalancerService(
-            ServerPool serverPool,
+            ServerPoolManager serverPoolManager,
             RestTemplate restTemplate
     ) {
-        this.serverPool = serverPool;
+        this.serverPoolManager = serverPoolManager;
         this.restTemplate = restTemplate;
-        this.virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor(); // Creating executor for virtual threads
+        this.virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
-    public void addServer(String url) {
-        try {
-            serverPool.addServer(url);
-            log.info("Server {} was successfully added to the pool.", url);
-        } catch (Exception e) {
-            log.error("Server {} could not be added to the pool. {}", url, e.getMessage());
-        }
-    }
-
-    public void removeServer(String url) {
-        serverPool.removeServer(url);
-    }
-
-    public List<ServerStats> getAvailableServers() {
-        return serverPool.getAllServers();
-    }
-
+    /**
+     * Selects the healthiest server with the lowest workload.
+     *
+     * @return Selected server with the least workload {@link ServerStats}.
+     * @throws RuntimeException if no healthy servers are available.
+     */
     public ServerStats selectServer() {
-        return getAvailableServers().stream()
-                .filter(ServerStats::isHealthy)
+        return serverPoolManager.getAllServers(true).stream()
                 .min(Comparator.comparingDouble(ServerStats::getWorkload))
                 .orElseThrow(() -> new RuntimeException("No healthy servers available!"));
     }
 
-    public CompletableFuture<ResponseEntity<String>> forwardRequestAsync(RequestForwardingDto dto) {
+    /**
+     * Forwards an HTTP request asynchronously to the selected server.
+     *
+     * @param requestDTO {@link RequestForwardingDto} Data Transfer Object containing request details.
+     * @return A CompletableFuture containing the HTTP response.
+     */
+    public CompletableFuture<ResponseEntity<String>> forwardRequestAsync(RequestForwardingDto requestDTO) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                HttpEntity<String> requestEntity = new HttpEntity<>(dto.body(), dto.headers());
+                HttpEntity<String> requestEntity = new HttpEntity<>(requestDTO.body(), requestDTO.headers());
                 ResponseEntity<String> response = restTemplate.exchange(
-                        dto.targetUrl(),
-                        dto.method(),
+                        requestDTO.targetUrl(),
+                        requestDTO.method(),
                         requestEntity,
                         String.class
                 );
-                log.info("Request forwarded to {} with response status: {}", dto.targetUrl(), response.getStatusCode());
+                log.info("Request forwarded to {} with response status: {}", requestDTO.targetUrl(), response.getStatusCode());
                 return response;
             } catch (Exception ex) {
-                log.error("Failed to forward request to {}: {}", dto.targetUrl(), ex.getMessage());
+                log.error("Failed to forward request to {}: {}", requestDTO.targetUrl(), ex.getMessage());
                 throw new RuntimeException("Failed to forward request", ex);
             }
         }, virtualThreadExecutor);

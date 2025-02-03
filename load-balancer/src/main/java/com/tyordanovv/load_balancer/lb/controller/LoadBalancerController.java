@@ -21,6 +21,16 @@ public class LoadBalancerController {
     public LoadBalancerController(LoadBalancerService loadBalancerService) {
         this.loadBalancerService = loadBalancerService;
     }
+
+    /**
+     * Routes incoming API requests to the appropriate backend server.
+     *
+     * @param headers {@link HttpHeaders} from the incoming request.
+     * @param body    Request body (optional).
+     * @param method  {@link HttpMethod} (GET, POST, etc.).
+     * @param request {@link HttpServletRequest} object to extract the original request URI.
+     * @return A CompletableFuture with the forwarded response or an error response if no servers are available.
+     */
     @RequestMapping("/**")
     public CompletableFuture<ResponseEntity<String>> routeRequest(
             @RequestHeader HttpHeaders headers,

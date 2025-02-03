@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder // TODO move to different module
 public class ServerMetrics {
     private String serverId;
+    private String serverURL;
     private double cpuUsage;
     private long memoryUsage;
     private long freeMemory;

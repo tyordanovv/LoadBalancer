@@ -21,9 +21,6 @@ same backend server.
 * [X] Workload-Based Routing: For picture upload/download endpoints and all unauthenticated requests, the load balancer
 will monitor the workload on backend servers and route requests to the server with the least load.
 
-#### Fallback Routing
-* [ ] If a server is unresponsive or overloaded, the request will be routed to the next available server.
-
 #### Health Checks
 Active health checks will verify:
 * [X] Server responsiveness (e.g., HTTP 200 status).
@@ -36,7 +33,7 @@ HTTPS Termination:
 
 Dynamic Scaling:
 * [X] **Adding Servers**: When a new server is launched, it registers to the LB using the `addServer` method.
-* [ ] **Removing Servers**: Unhealthy or unnecessary servers can be removed with the `removeServer` method.
+* [X] **Removing Servers**: Unhealthy or unnecessary servers can be removed with the `removeServer` method.
 * [X] **Automatic Health Checks**: The system automatically checks the health of all servers and removes any that fail
   specific amount of health checks, ensuring that traffic is only sent to healthy servers.
 

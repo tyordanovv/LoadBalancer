@@ -20,8 +20,9 @@ public class LoadBalancerConnectorController {
     @GetMapping()
     public ResponseEntity<ServerMetrics> healthCheck() {
         ServerMetrics metrics = loadBalancerService.getServerHealth();
-        log.info("Server {} metrics: CPU usage = {}%, memory usage = {}%",
+        log.info("Server {} on url {} metrics: CPU usage = {}%, memory usage = {}%",
                 metrics.getServerId(),
+                metrics.getServerURL(),
                 String.format("%.2f", metrics.getCpuUsage()),
                 String.format("%.2f", (double) metrics.getMemoryUsage() / metrics.getTotalMemory() * 100));
         return ResponseEntity.ok(metrics);
